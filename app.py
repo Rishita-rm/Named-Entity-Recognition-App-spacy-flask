@@ -9,10 +9,18 @@ import base64
 
 app = Flask(__name__)
 
-# Available models
+# ✅ Dynamically download models if not already present
+def safe_load_model(model_name):
+    try:
+        return spacy.load(model_name)
+    except OSError:
+        os.system(f"python -m spacy download {model_name}")
+        return spacy.load(model_name)
+
+# ✅ Available models
 MODELS = {
-    'en_core_web_sm': spacy.load('en_core_web_sm'),
-    'xx_ent_wiki_sm': spacy.load('xx_ent_wiki_sm')
+    'en_core_web_sm': safe_load_model('en_core_web_sm'),
+    'xx_ent_wiki_sm': safe_load_model('xx_ent_wiki_sm')
 }
 
 @app.route('/')
@@ -87,4 +95,5 @@ def api_entity():
     return jsonify({"entities": entities})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 8080))
+    app.run(debug=True, host='0.0.0.0', port=port)
