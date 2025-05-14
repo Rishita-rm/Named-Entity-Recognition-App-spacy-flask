@@ -9,23 +9,25 @@ import base64
 
 app = Flask(__name__)
 
-# ✅ Dynamically download models if not already present
-def safe_load_model(model_name):
-    try:
-        return spacy.load(model_name)
-    except OSError:
-        os.system(f"python -m spacy download {model_name}")
-        return spacy.load(model_name)
+# ✅ Lazy-loaded model cache
+LOADED_MODELS = {}
 
-# ✅ Available models
-MODELS = {
-    'en_core_web_sm': safe_load_model('en_core_web_sm'),
-    'xx_ent_wiki_sm': safe_load_model('xx_ent_wiki_sm')
-}
+# ✅ Load or download model on demand
+def get_model(name):
+    if name not in LOADED_MODELS:
+        try:
+            LOADED_MODELS[name] = spacy.load(name)
+        except OSError:
+            os.system(f"python -m spacy download {name}")
+            LOADED_MODELS[name] = spacy.load(name)
+    return LOADED_MODELS[name]
+
+# ✅ Just list names (don't preload)
+MODEL_NAMES = ['en_core_web_sm', 'xx_ent_wiki_sm']
 
 @app.route('/')
 def index():
-    return render_template('index.html', models=MODELS.keys())
+    return render_template('index.html', models=MODEL_NAMES)
 
 @app.route('/entity', methods=['POST'])
 def entity():
@@ -33,7 +35,6 @@ def entity():
     entity_types = request.form.getlist('entity_type')
     text = ""
 
-    # Priority to text area
     if 'text' in request.form and request.form['text'].strip():
         text = request.form['text']
     elif 'file' in request.files:
@@ -42,9 +43,9 @@ def entity():
             text = file.read().decode('utf-8', errors='ignore')
 
     if not text:
-        return render_template('index.html', error="No text provided.", models=MODELS.keys())
+        return render_template('index.html', error="No text provided.", models=MODEL_NAMES)
 
-    nlp = MODELS[selected_model]
+    nlp = get_model(selected_model)
     doc = nlp(text)
 
     if entity_types:
@@ -53,12 +54,11 @@ def entity():
 
     html = displacy.render(doc, style='ent', jupyter=False)
 
-    # Stats
     labels = [ent.label_ for ent in doc.ents]
     counter = Counter(labels)
     chart = plot_entity_distribution(counter)
 
-    return render_template('index.html', html=html, text=text, models=MODELS.keys(), chart=chart)
+    return render_template('index.html', html=html, text=text, models=MODEL_NAMES, chart=chart)
 
 def plot_entity_distribution(counter):
     if not counter:
@@ -79,10 +79,10 @@ def api_entity():
     data = request.get_json()
     text = data.get('text', '')
     model_name = data.get('model', 'en_core_web_sm')
-    if model_name not in MODELS:
+    if model_name not in MODEL_NAMES:
         return jsonify({"error": "Model not supported"}), 400
 
-    nlp = MODELS[model_name]
+    nlp = get_model(model_name)
     doc = nlp(text)
 
     entities = [{
