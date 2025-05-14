@@ -1,8 +1,8 @@
-Flask==2.2.5
-spacy==3.7.2
-matplotlib==3.8.2
-gunicorn==21.2.0
+Flask
+spacy
+matplotlib
+gunicorn
 
-# Required spaCy language models
+# Required spaCy models (let pip install compatible versions)
 en_core_web_sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.7.0/en_core_web_sm-3.7.0-py3-none-any.whl
 xx_ent_wiki_sm @ https://github.com/explosion/spacy-models/releases/download/xx_ent_wiki_sm-3.5.0/xx_ent_wiki_sm-3.5.0-py3-none-any.whl
