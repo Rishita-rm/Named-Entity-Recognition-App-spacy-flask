@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Named Entity Recognition App</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM"
+      crossorigin="anonymous"
+    />
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/4150/4150897.png" type="image/png">
+    <style>
+      #loadingSpinner {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(255, 255, 255, 0.7);
+        z-index: 1050;
+        justify-content: center;
+        align-items: center;
+      }
+    </style>
+  </head>
+  <body class="bg-light d-flex flex-column min-vh-100">
+    <div id="loadingSpinner" class="d-flex">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+
+    <div class="container mt-4 mb-5">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1 class="mb-0">Named Entity Recognition App</h1>
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" id="darkModeSwitch" onclick="toggleTheme()">
+          <label class="form-check-label" for="darkModeSwitch">Dark Mode</label>
+        </div>
+      </div>
+
+      {% if error %}
+      <div class="alert alert-danger">{{ error }}</div>
+      {% endif %}
+
+      <form action="/entity" method="post" enctype="multipart/form-data" class="bg-white p-4 rounded shadow-sm" onsubmit="showSpinner()">
+        <div class="mb-3">
+          <label for="model" class="form-label">Select Language Model</label>
+          <select class="form-select" name="model">
+            {% for model in models %}
+            <option value="{{ model }}">{{ model }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="mb-3">
+          <label for="text" class="form-label">Enter Text</label>
+          <textarea class="form-control" name="text" rows="5" placeholder="Type or paste your text here..."></textarea>
+        </div>
+
+        <div class="mb-3">
+          <label for="file" class="form-label">Or Upload a Text File</label>
+          <input type="file" name="file" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Select Entity Types to Highlight</label>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="entity_type" value="PERSON" id="person">
+            <label class="form-check-label" for="person">PERSON</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="entity_type" value="ORG" id="org">
+            <label class="form-check-label" for="org">ORG</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="entity_type" value="GPE" id="gpe">
+            <label class="form-check-label" for="gpe">GPE (Geo-Political Entity)</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="entity_type" value="DATE" id="date">
+            <label class="form-check-label" for="date">DATE</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="entity_type" value="NORP" id="norp">
+            <label class="form-check-label" for="norp">NORP (Nationalities, Religious or Political Groups)</label>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Get Entities</button>
+      </form>
+
+      {% if text and html %}
+      <div class="mt-4">
+        <h5>Original Text</h5>
+        <div class="p-3 bg-white rounded shadow-sm">{{ text|safe }}</div>
+
+        <h5 class="mt-4">Named Entities Highlighted</h5>
+        <div class="p-3 bg-white rounded shadow-sm">{{ html|safe }}</div>
+      </div>
+      {% endif %}
+
+      {% if chart %}
+      <div class="mt-4">
+        <h5>Entity Frequency Chart</h5>
+        <img src="{{ chart }}" alt="Entity Chart" class="img-fluid border rounded shadow-sm" />
+      </div>
+      {% endif %}
+    </div>
+
+    <footer class="bg-white text-center py-3 mt-auto border-top">
+      <p class="mb-1">Made by <strong>Your Name</strong> | <a href="https://github.com/yourusername/ner-app" target="_blank">View on GitHub</a></p>
+      <small>&copy; {{ 2025 }} All rights reserved.</small>
+    </footer>
+
+    <script>
+      function showSpinner() {
+        document.getElementById("loadingSpinner").style.display = "flex";
+      }
+
+      function toggleTheme() {
+        const htmlTag = document.documentElement;
+        const isDark = htmlTag.getAttribute("data-bs-theme") === "dark";
+        htmlTag.setAttribute("data-bs-theme", isDark ? "light" : "dark");
+      }
+    </script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+      crossorigin="anonymous"
+    ></script>
+  </body>
+</html>
