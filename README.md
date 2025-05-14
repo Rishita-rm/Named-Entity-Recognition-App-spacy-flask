@@ -114,8 +114,9 @@ Use the /api/entity endpoint for programmatic access.
 ---
 
 ## 👤 Author
-Rishita Makkar
-LinkedIn • GitHub
+**Rishita Makkar**
+🔗 [LinkedIn](https://www.linkedin.com/in/rishita-makkar-256851291/)  
+💻 [GitHub](https://github.com/Rishita-rm)
 
 ---
 
