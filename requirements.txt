@@ -4,6 +4,5 @@ matplotlib
 gunicorn
 numpy==1.24.3
 
-# Compatible spaCy models
+# SpaCy models compatible with 3.5.4
 en_core_web_sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.5.0/en_core_web_sm-3.5.0-py3-none-any.whl
-xx_ent_wiki_sm @ https://github.com/explosion/spacy-models/releases/download/xx_ent_wiki_sm-3.5.0/xx_ent_wiki_sm-3.5.0-py3-none-any.whl
